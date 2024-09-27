@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        #chat-container {
+            width: 900px; /* Increased width */
+            height: 700px; /* Increased height */
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        #chat-box {
+            flex: 1;
+            overflow-y: scroll;
+            border-bottom: 1px solid #ddd;
+            padding: 10px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+        .message {
+            margin: 10px 0;
+        }
+        .message p {
+            margin: 0;
+        }
+        .message .user {
+            font-weight: bold;
+            text-align: right; /* Align user messages to the right */
+        }
+        .message .assistant {
+            color: #007bff;
+            text-align: left; /* Align chatbot messages to the left */
+        }
+        #user-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+        #user-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
+        #user-input button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #back-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .loading {
+            display: inline-block;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            padding: 5px 10px;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+
+<div id="chat-container">
+    <button id="back-button" onclick="goBack()">Back</button>
+    <div id="chat-box">
+        <!-- Messages will be inserted here -->
+    </div>
+    <div id="user-input">
+        <button onclick="sendMessage()">Send</button>
+        <input type="text" id="user-message" placeholder="Type your message here..." onkeydown="checkEnter(event)">
+    </div>
+</div>
+
+<script>
+    function sendMessage() {
+        const message = document.getElementById('user-message').value;
+        if (message.trim() === '') return;
+
+        const chatBox = document.getElementById('chat-box');
+        const userMessage = `<div class="message"><p class="user">You: ${message}</p></div>`;
+        chatBox.innerHTML += userMessage;
+
+        const botMessage = `<div class="message"><p class="assistant">Chatbot: <span class="loading">Loading...</span></p></div>`;
+        chatBox.innerHTML += botMessage;
+        chatBox.scrollTop = chatBox.scrollHeight;  // Auto-scroll to the bottom
+
+        fetch('/chatbot', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ question: message })
+        })
+        
+        .then(response => response.json())
+        .then(data => {
+            const loadingSpan = chatBox.querySelector('.loading');
+            const messageText = data.response;
+            const typingSpeed = 50; // Adjust typing speed (in milliseconds)
+            const typingEffect = (text, index) => {
+                if (index < text.length) {
+                    loadingSpan.innerHTML += text.charAt(index);
+                    setTimeout(() => typingEffect(text, index + 1), typingSpeed);
+                } else {
+                    loadingSpan.classList.remove('loading'); // Remove loading class once typing is done
+                }
+            };
+
+            typingEffect(messageText, 0);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const errorMessage = `<div class="message"><p class="assistant">Chatbot: Sorry, an error occurred while processing your request.</p></div>`;
+            chatBox.innerHTML += errorMessage;
+            chatBox.scrollTop = chatBox.scrollHeight;  // Auto-scroll to the bottom
+        });
+
+        document.getElementById('user-message').value = '';  // Clear the input field
+    }
+
+    function checkEnter(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Prevent the default action (e.g., adding a new line)
+            sendMessage();
+        }
+    }
+
+    function goBack() {
+        window.history.back();  // This will take the user back to the previous page
+    }
+</script>
+
+</body>
+</html>

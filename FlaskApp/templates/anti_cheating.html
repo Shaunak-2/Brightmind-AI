@@ -1,0 +1,57 @@
+anticheating.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anti-Cheating</title>
+    <script>
+        // Disable Copy-Paste
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.body.oncopy = function() {
+                alert('Copying is not allowed!');
+                return false;
+            };
+            document.body.onpaste = function() {
+                alert('Pasting is not allowed!');
+                return false;
+            };
+        });
+
+        // Detect Tab Switching
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                alert("Tab switching detected! Please stay on the quiz page.");
+            }
+        });
+
+        // Check for multiple faces
+        function checkForMultipleFaces() {
+            fetch('/face_count')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Face count:', data.face_count); // Debugging line
+                    if (data.face_count > 1) {
+                        alert("Multiple faces detected! Cheating alert!");
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Periodically check for faces every 2 seconds
+        setInterval(checkForMultipleFaces, 2000);
+    </script>
+</head>
+<body>
+    <h2>Quiz Application</h2>
+    <p>Please keep your attention on this page. Copying, pasting, and tab switching are not allowed.</p>
+    <textarea placeholder="Type your answer here..." rows="10" cols="50"></textarea>
+    
+    <div>
+        <h3>Camera Feed</h3>
+        <!-- Embed a live video feed here -->
+        <img src="http://localhost:5000/video_feed" alt="Camera Feed">
+    </div>
+</body>
+</html>
