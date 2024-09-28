@@ -1,41 +1,78 @@
+/* Body Styling */
 body {
-    background-color: #0BA34E;
+    background: linear-gradient(to right, #00C9FF, #92FE9D); /* Gradient background */
     color: white;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
 }
 
-#bigb {
-    background-color: #0f0d0d;
-    padding: 20px;
-    border-radius: 10px;
+/* Main Container Styling */
+#container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 4rem;
+}
+
+/* Individual Box Styling */
+#cont1, #cont2, #cont3 {
+    background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
+    border-radius: 20px;
+    padding: 4rem 2rem;
     text-align: center;
-    width: 400px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Box shadow for 3D effect */
+    transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
-input, button {
-    display: block;
-    margin: 10px auto;
-    padding: 10px;
-    border-radius: 5px;
-    border: none;
+/* Heading Style */
+h1 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #F1F1F1;
 }
 
-input {
-    width: calc(100% - 40px); /* Adjusting width to fit within padding */
-}
-
+/* Button Styling */
 button {
-    width: calc(100% - 20px); /* Adjusting width to fit within padding */
+    padding: 15px 30px;
+    font-size: 1.2rem;
     background-color: #444;
+    border: none;
+    border-radius: 30px;
     color: white;
     cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    margin-top: 20px;
+    width: 100%;
 }
 
 button:hover {
-    background-color: #555;
+    background-color: #1A73E8;
+    transform: scale(1.05); /* Slight grow effect on hover */
+}
+
+/* Hover Effect for Boxes */
+#cont1:hover, #cont2:hover, #cont3:hover {
+    transform: translateY(-10px); /* Move up on hover */
+    background-color: rgba(0, 0, 0, 0.9); /* Darker background on hover */
+}
+
+/* Media Queries for Responsiveness */
+@media screen and (max-width: 768px) {
+    #container {
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    button {
+        font-size: 1rem;
+    }
 }
