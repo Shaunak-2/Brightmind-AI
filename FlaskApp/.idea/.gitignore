@@ -1,3 +1,18 @@
 # Default ignored files
 /shelf/
 /workspace.xml
+# Ignore Python bytecode
+__pycache__/
+*.py[cod]
+
+# Ignore virtual environments
+env/
+venv/
+
+# Ignore log and temp files
+*.log
+*.tmp
+
+# Ignore build artifacts
+/build/
+/dist/

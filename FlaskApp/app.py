@@ -39,9 +39,12 @@ app = Flask(__name__)
 def index():
     return render_template('interface.html')
 
+@app.route('/chatbot', methods=['GET'])
+def chatbot_page():
+    return render_template('chatbot.html')
 
-@app.route('/chatbot', methods=['POST'])
-def chatbot():
+@app.route('/chatbot_api', methods=['POST'])
+def chatbot_api():
     if not request.is_json:
         return jsonify(response="Invalid Content-Type. Expected application/json."), 400
 
@@ -49,10 +52,9 @@ def chatbot():
     question = data.get('question')
     if not question:
         return jsonify(response="No question provided."), 400
-    
+
     response = chatbot_function(question)
     return jsonify(response=response)
-
 
 @app.route('/choice')
 def choice():
