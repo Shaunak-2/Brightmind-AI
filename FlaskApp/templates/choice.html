@@ -6,6 +6,7 @@
   <title>Choice Page</title>
   <link rel="stylesheet" href="/static/css/choice.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet"> <!-- Adding a stylish font -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Font Awesome Icon Library -->
 </head>
 <body>
   <div id="container">
@@ -20,12 +21,13 @@
       <h1>Take Interview</h1>
       <a href="/interView" target="_parent"><button>Take Interview</button></a>
     </div>
+  </div>
 
-    <!-- Chatbot Section -->
-    <div id="cont3">
-      <h1>Chat with Bot</h1>
-      <a href="/chatbot" target="_parent"><button>Chat Bot</button></a>
-    </div>
+  <!-- Chatbot Icon Button at the bottom-right -->
+  <div id="chatbot-button">
+    <a href="/chatbot" target="_parent">
+      <button><i class="fas fa-robot"></i></button> <!-- Font Awesome chatbot icon -->
+    </a>
   </div>
 </body>
 </html>

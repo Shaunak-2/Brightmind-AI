@@ -8,6 +8,7 @@ body {
     height: 100vh;
     margin: 0;
     font-family: 'Poppins', sans-serif;
+    position: relative; /* Added for chatbot positioning */
 }
 
 /* Main Container Styling */
@@ -20,7 +21,7 @@ body {
 }
 
 /* Individual Box Styling */
-#cont1, #cont2, #cont3 {
+#cont1, #cont2 {
     background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
     border-radius: 20px;
     padding: 4rem 2rem;
@@ -56,9 +57,36 @@ button:hover {
 }
 
 /* Hover Effect for Boxes */
-#cont1:hover, #cont2:hover, #cont3:hover {
+#cont1:hover, #cont2:hover {
     transform: translateY(-10px); /* Move up on hover */
     background-color: rgba(0, 0, 0, 0.9); /* Darker background on hover */
+}
+
+/* Chatbot Icon Button Styling */
+#chatbot-button {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+}
+
+#chatbot-button button {
+    background-color: blue;
+    padding: 15px;
+    font-size: 1.5rem;
+    border-radius: 50px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+#chatbot-button button:hover {
+    background-color: #218838;
+    transform: scale(1.1);
+}
+
+/* Styling the icon */
+#chatbot-button i {
+    color: white;
 }
 
 /* Media Queries for Responsiveness */
@@ -74,5 +102,11 @@ button:hover {
 
     button {
         font-size: 1rem;
+    }
+
+    /* Adjust chatbot button size on smaller screens */
+    #chatbot-button button {
+        padding: 10px 15px;
+        font-size: 1.2rem;
     }
 }
