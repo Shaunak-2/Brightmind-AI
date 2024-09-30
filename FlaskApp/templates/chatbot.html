@@ -4,117 +4,148 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,700">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.1.2/css/material-design-iconic-font.min.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f4;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f4f4f4;
         }
+
         #chat-container {
-            width: 900px; /* Increased width */
-            height: 700px; /* Increased height */
+            width: 360px;
+            height: 600px;
             background-color: white;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
             position: relative;
-            display: flex;
-            flex-direction: column;
         }
+
+        #chat-header {
+            background-color: #007bff;
+            color: white;
+            padding: 16px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
         #chat-box {
             flex: 1;
-            overflow-y: scroll;
-            border-bottom: 1px solid #ddd;
-            padding: 10px;
-            box-sizing: border-box;
+            padding: 16px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
             display: flex;
             flex-direction: column;
+            gap: 10px;
         }
+
         .message {
-            margin: 10px 0;
+            display: flex;
+            align-items: flex-start;
         }
-        .message p {
-            margin: 0;
+
+        .message.user {
+            justify-content: flex-end;
         }
-        .message .user {
-            font-weight: bold;
-            text-align: right; /* Align user messages to the right */
+
+        .message .text {
+            max-width: 75%;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
         }
-        .message .assistant {
-            color: #007bff;
-            text-align: left; /* Align chatbot messages to the left */
+
+        .message.user .text {
+            background-color: #007bff;
+            color: white;
+            border-bottom-right-radius: 0;
         }
+
+        .message.assistant .text {
+            background-color: #e4e6eb;
+            color: #000;
+            border-bottom-left-radius: 0;
+        }
+
         #user-input {
             display: flex;
-            padding: 10px;
+            padding: 16px;
             border-top: 1px solid #ddd;
+            background-color: #fff;
         }
+
         #user-input input {
             flex: 1;
             padding: 10px;
             border: 1px solid #ddd;
-            border-radius: 5px;
-            margin-left: 10px;
+            border-radius: 20px;
+            outline: none;
         }
+
         #user-input button {
-            padding: 10px 20px;
             background-color: #007bff;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 50%;
+            padding: 10px;
             cursor: pointer;
+            margin-left: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        #back-button {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 5px 10px;
-            cursor: pointer;
+
+        #user-input button i {
+            font-size: 24px;
         }
-        .loading {
-            display: inline-block;
-            border: 1px solid #007bff;
-            border-radius: 5px;
-            padding: 5px 10px;
-            color: #007bff;
-        }
+
     </style>
 </head>
 <body>
-
-<div id="chat-container">
-    <button id="back-button" onclick="goBack()">Back</button>
-    <div id="chat-box">
-        <!-- Messages will be inserted here -->
+    <div id="chat-container">
+        <div id="chat-header">BrightMind-AI</div>
+        <div id="chat-box"></div>
+        <div id="user-input">
+            <input type="text" id="user-message" placeholder="Type your message..." onkeydown="checkEnter(event)">
+            <button onclick="sendMessage()">
+                <i class="zmdi zmdi-mail-send"></i>
+            </button>
+        </div>
     </div>
-    <div id="user-input">
-        <button onclick="sendMessage()">Send</button>
-        <input type="text" id="user-message" placeholder="Type your message here..." onkeydown="checkEnter(event)">
-    </div>
-</div>
 
-<script>
+    <script>
     function sendMessage() {
         const message = document.getElementById('user-message').value;
         if (message.trim() === '') return;
 
         const chatBox = document.getElementById('chat-box');
+        
         const userMessage = `<div class="message"><p class="user">You: ${message}</p></div>`;
         chatBox.innerHTML += userMessage;
 
-        const botMessage = `<div class="message"><p class="assistant">Chatbot: <span class="loading">Loading...</span></p></div>`;
-        chatBox.innerHTML += botMessage;
-        chatBox.scrollTop = chatBox.scrollHeight;  // Auto-scroll to the bottom
+        // Auto-scroll to the bottom after user message
+        chatBox.scrollTop = chatBox.scrollHeight;
 
+        const botMessageWrapper = document.createElement('div');
+        botMessageWrapper.classList.add('message', 'assistant');
+        const botMessageContent = document.createElement('p');
+        botMessageContent.classList.add('assistant');
+        botMessageContent.innerHTML = 'Chatbot: <span class="loading">...</span>';
+        botMessageWrapper.appendChild(botMessageContent);
+        chatBox.appendChild(botMessageWrapper);
+        chatBox.scrollTop = chatBox.scrollHeight;  // Auto-scroll
+
+        // Fetch chatbot response
         fetch('/chatbot_api', { 
             method: 'POST',
             headers: {
@@ -122,22 +153,23 @@
             },
             body: JSON.stringify({ question: message })
         })
-
-        
         .then(response => response.json())
         .then(data => {
-            const loadingSpan = chatBox.querySelector('.loading');
+            const loadingSpan = botMessageWrapper.querySelector('.loading');
+            loadingSpan.innerHTML = '';  // Clear the "..." loading dots
+
             const messageText = data.response;
-            const typingSpeed = 50; // Adjust typing speed (in milliseconds)
+            const typingSpeed = 50;  // Speed of typing effect (adjust as necessary)
+            
+            // Typing effect function
             const typingEffect = (text, index) => {
                 if (index < text.length) {
                     loadingSpan.innerHTML += text.charAt(index);
                     setTimeout(() => typingEffect(text, index + 1), typingSpeed);
-                } else {
-                    loadingSpan.classList.remove('loading'); // Remove loading class once typing is done
                 }
             };
 
+            // Start typing effect for bot response
             typingEffect(messageText, 0);
         })
         .catch(error => {
@@ -147,20 +179,16 @@
             chatBox.scrollTop = chatBox.scrollHeight;  // Auto-scroll to the bottom
         });
 
-        document.getElementById('user-message').value = '';  // Clear the input field
+        // Clear the input field after message is sent
+        document.getElementById('user-message').value = '';
     }
 
-    function checkEnter(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault(); // Prevent the default action (e.g., adding a new line)
-            sendMessage();
+        function checkEnter(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendMessage();
+            }
         }
-    }
-
-    function goBack() {
-        window.history.back();  // This will take the user back to the previous page
-    }
-</script>
-
+    </script>
 </body>
 </html>
