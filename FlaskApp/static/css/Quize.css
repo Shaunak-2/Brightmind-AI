@@ -1,98 +1,124 @@
-
+/* General Body Styling */
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f4f4f4;
-    font-family: Arial, sans-serif;
-    margin: 0;
-  }
-  
+  background: linear-gradient(to right, #00C9FF, #92FE9D); /* Gradient background */
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Quiz Container Styling */
+.quiz-container {
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Stronger shadow for depth */
+  padding: 40px;
+  width: 350px;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.quiz-container:hover {
+  transform: scale(1.03); /* Slight grow on hover */
+}
+
+/* Headings */
+h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Input Fields */
+input[type="text"], input[type="number"] {
+  width: calc(100% - 40px);
+  padding: 10px;
+  border-radius: 8px;
+  border: 2px solid #ddd;
+  font-size: 1rem;
+  margin-bottom: 20px;
+  transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus, input[type="number"]:focus {
+  border-color: #1A73E8; /* Highlight on focus */
+  outline: none;
+}
+
+/* Button Styling */
+button, #quizButton {
+  width: calc(100% - 20px);
+  padding: 12px;
+  font-size: 1.2rem;
+  background-color: #1A73E8;
+  border: none;
+  border-radius: 30px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  margin-top: 20px;
+  text-transform: uppercase;
+}
+
+button:hover, #quizButton:hover {
+  background-color: #0F57C2;
+  transform: scale(1.05); /* Button grows slightly on hover */
+}
+
+/* Button Disabled State */
+#nextButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Label Styling */
+label {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 10px;
+  display: inline-block;
+}
+
+/* Choice Buttons Styling */
+.choices {
+  margin-top: 20px;
+}
+
+.choice {
+  background-color: #28A745;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 10px;
+  cursor: pointer;
+  width: calc(100% - 20px);
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.choice:hover {
+  background-color: #218838;
+  transform: scale(1.03); /* Choices grow slightly on hover */
+}
+
+/* Mobile Responsiveness */
+@media screen and (max-width: 768px) {
   .quiz-container {
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    width: 300px;
-    text-align: center;
-  }
-  
-  .choices {
-    margin-top: 20px;
-  }
-  
-  .choice {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 10px;
-    margin: 5px;
-    cursor: pointer;
-    width: calc(100% - 20px);
-  }
-  
-  .choice:hover {
-    background-color: #0056b3;
-  }
-  
-  #nextButton {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 10px;
-    margin-top: 20px;
-    cursor: pointer;
-    width: calc(100% - 20px);
-  }
-  
-  #nextButton:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
+      width: 90%;
   }
 
-  body {
-    background-color: #0BA34E;
-    color: black;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    font-family: Arial, sans-serif;
-}
+  h1 {
+      font-size: 1.5rem;
+  }
 
-#bigb {
-    background-color: #0f0d0d;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    width: 400px;
-}
+  button, #quizButton {
+      font-size: 1rem;
+  }
 
-input, button {
-    display: block;
-    margin: 10px auto;
-    padding: 10px;
-    border-radius: 5px;
-    border: none;
+  input[type="text"], input[type="number"] {
+      font-size: 1rem;
+  }
 }
-
-input {
-    width: calc(100% - 40px); /* Adjusting width to fit within padding */
-}
-
-button {
-    width: calc(100% - 20px); /* Adjusting width to fit within padding */
-    background-color: #444;
-    color: white;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #555;
-}
-
-  

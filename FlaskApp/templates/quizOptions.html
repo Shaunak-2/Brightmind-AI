@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Options</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    /* General body styling */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f093fb, #f5576c, #4facfe);
+      color: #fff;
+    }
+
+    /* Main container styling */
+    #container {
+      text-align: center;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 50px;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      max-width: 500px;
+      width: 100%;
+      margin: auto;
+    }
+
+    /* Header styling */
+    h1 {
+      font-weight: 600;
+      margin-bottom: 40px;
+      color: #2C3E50;
+      font-size: 2.4rem;
+      background: linear-gradient(90deg, #ff8a00, #e52e71);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    /* Quiz options styling */
+    #quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Button styling */
+    button {
+      padding: 15px 20px;
+      font-size: 1.3rem;
+      font-weight: 500;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(145deg, #ff512f, #dd2476);
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    button:hover {
+      background: linear-gradient(145deg, #ff8a00, #e52e71);
+      transform: translateY(-5px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    button:active {
+      transform: translateY(2px);
+    }
+
+    /* Chatbot button styling */
+    #chatbot-button {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+    }
+
+    #chatbot-button button {
+      background-color: #42a5f5;
+      color: white;
+      font-size: 1.5rem;
+      padding: 20px;
+      border-radius: 50%;
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    #chatbot-button button:hover {
+      background-color: #1e88e5;
+      transform: scale(1.1);
+    }
+
+    #chatbot-button button i {
+      pointer-events: none;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      #container {
+        padding: 30px;
+        width: 90%;
+      }
+
+      button {
+        padding: 12px 20px;
+        font-size: 1.1rem;
+      }
+
+      #chatbot-button button {
+        font-size: 1.2rem;
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h1>Choose Quiz Type</h1>
+    <div id="quiz-options">
+      <a href="/Quize" target="_parent"><button>Text-Based Quiz</button></a>
+      <a href="/quizByTopic" target="_parent"><button>Topic-Wise Quiz</button></a>
+    </div>
+  </div>
+
+  <!-- Chatbot Icon Button at the bottom-right -->
+  <div id="chatbot-button">
+    <a href="/chatbot" target="_parent">
+      <button><i class="fas fa-robot"></i></button> <!-- Font Awesome chatbot icon -->
+    </a>
+  </div>
+</body>
+</html>

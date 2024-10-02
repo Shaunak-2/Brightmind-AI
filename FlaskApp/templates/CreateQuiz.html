@@ -1,14 +1,15 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Game</title>
+    <title>Interactive Quiz Game</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
@@ -17,100 +18,155 @@
             align-items: center;
             height: 100vh;
         }
-        
+
         .quiz-container {
             background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            width: 300px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            width: 350px;
+            transition: transform 0.4s ease-in-out;
         }
-        
-        .quiz-header {
-            margin-bottom: 20px;
-        }
-        
+
         .quiz-header h2 {
-            margin: 0;
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 22px;
+            text-align: center;
         }
-        
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #ddd;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: #4caf50;
+            width: 0;
+            transition: width 0.4s ease;
+        }
+
         ul {
             list-style: none;
             padding: 0;
         }
-        
+
         ul li {
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
-        
+
+        ul li label {
+            display: block;
+            background-color: #f0f0f0;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        ul li:hover label {
+            background-color: #ddd;
+        }
+
+        ul li input[type="radio"] {
+            display: none;
+        }
+
         button {
             background-color: #007BFF;
             border: none;
             color: white;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
+            padding: 12px 20px;
             font-size: 16px;
             border-radius: 5px;
             cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease;
         }
-        
+
         button:hover {
             background-color: #0056b3;
         }
-        
+
         #score {
-            margin-top: 20px;
             font-size: 18px;
+            margin-top: 20px;
+            text-align: center;
         }
-        
+
+        #feedback {
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="quiz-container" id="quiz">
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
         <div class="quiz-header">
+            <!-- Question number added -->
+            <h2 id="question-number">Question 1</h2>
             <h2 id="question">Question Text</h2>
+            <p id="feedback" class="hidden"></p>
             <ul>
                 <li>
+                    <!-- Option numbering added (1.) -->
                     <input type="radio" name="answer" id="a" class="answer">
-                    <label for="a" id="a_text">Answer A</label>
+                    <label for="a" id="a_text">1. Answer A</label>
                 </li>
                 <li>
+                    <!-- Option numbering added (2.) -->
                     <input type="radio" name="answer" id="b" class="answer">
-                    <label for="b" id="b_text">Answer B</label>
+                    <label for="b" id="b_text">2. Answer B</label>
                 </li>
                 <li>
+                    <!-- Option numbering added (3.) -->
                     <input type="radio" name="answer" id="c" class="answer">
-                    <label for="c" id="c_text">Answer C</label>
+                    <label for="c" id="c_text">3. Answer C</label>
                 </li>
                 <li>
+                    <!-- Option numbering added (4.) -->
                     <input type="radio" name="answer" id="d" class="answer">
-                    <label for="d" id="d_text">Answer D</label>
+                    <label for="d" id="d_text">4. Answer D</label>
                 </li>
             </ul>
         </div>
         <button id="submit">Submit</button>
         <p id="score"></p>
     </div>
+
     <script>
-        // Parse JSON data passed from Flask
         const questions = JSON.parse('{{ questions|safe }}');
         const options_a = JSON.parse('{{ options_a|safe }}');
         const options_b = JSON.parse('{{ options_b|safe }}');
         const options_c = JSON.parse('{{ options_c|safe }}');
         const options_d = JSON.parse('{{ options_d|safe }}');
-        const correct_answers = ["b", "b", "b", "b"]; // Assuming you have this information
+        const correct_answers = ["b", "b", "b", "b"]; // Example correct answers
 
         const quiz = document.getElementById('quiz');
         const answerEls = document.querySelectorAll('.answer');
         const questionEl = document.getElementById('question');
+        const questionNumberEl = document.getElementById('question-number');  // Question number element
         const a_text = document.getElementById('a_text');
         const b_text = document.getElementById('b_text');
         const c_text = document.getElementById('c_text');
         const d_text = document.getElementById('d_text');
         const submitBtn = document.getElementById('submit');
         const scoreEl = document.getElementById('score');
+        const progressEl = document.getElementById('progress');
+        const feedbackEl = document.getElementById('feedback');
 
         let currentQuiz = 0;
         let score = 0;
@@ -120,11 +176,16 @@
         function loadQuiz() {
             deselectAnswers();
 
+            // Display current question number
+            questionNumberEl.innerText = `Question ${currentQuiz + 1}`;
             questionEl.innerText = questions[currentQuiz];
-            a_text.innerText = options_a[currentQuiz];
-            b_text.innerText = options_b[currentQuiz];
-            c_text.innerText = options_c[currentQuiz];
-            d_text.innerText = options_d[currentQuiz];
+            a_text.innerText = `1. ${options_a[currentQuiz]}`;
+            b_text.innerText = `2. ${options_b[currentQuiz]}`;
+            c_text.innerText = `3. ${options_c[currentQuiz]}`;
+            d_text.innerText = `4. ${options_d[currentQuiz]}`;
+
+            progressEl.style.width = `${(currentQuiz / questions.length) * 100}%`;
+            feedbackEl.classList.add('hidden');
         }
 
         function deselectAnswers() {
@@ -147,18 +208,26 @@
             if (answer) {
                 if (answer === correct_answers[currentQuiz]) {
                     score++;
+                    feedbackEl.innerText = "Correct!";
+                    feedbackEl.style.color = "green";
+                } else {
+                    feedbackEl.innerText = "Wrong!";
+                    feedbackEl.style.color = "red";
                 }
+                feedbackEl.classList.remove('hidden');
 
                 currentQuiz++;
 
-                if (currentQuiz < questions.length) {
-                    loadQuiz();
-                } else {
-                    quiz.innerHTML = `
-                        <h2>You answered ${score}/${questions.length} questions correctly</h2>
-                        <button onclick="location.reload()">Reload</button>
-                    `;
-                }
+                setTimeout(() => {
+                    if (currentQuiz < questions.length) {
+                        loadQuiz();
+                    } else {
+                        quiz.innerHTML = `
+                            <h2>You answered ${score}/${questions.length} questions correctly</h2>
+                            <button onclick="location.reload()">Reload</button>
+                        `;
+                    }
+                }, 1000);  // 1 second delay to show feedback
             }
         });
     </script>

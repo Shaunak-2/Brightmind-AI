@@ -11,7 +11,7 @@ import pygame
 import time
 import cv2
 from dotenv import load_dotenv
-from groq import Groq 
+from groq import Groq, RateLimitError 
 
 
 
@@ -25,6 +25,7 @@ load_dotenv()
 
 groq_api_key = os.getenv("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")
 client = Groq(api_key="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")
+client2 = Groq(api_key="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")
 
 
 # Set your API key
@@ -38,6 +39,22 @@ app = Flask(__name__)
 @app.route('/')
 def index():
     return render_template('interface.html')
+
+@app.route('/quizOptions')
+def quiz_options():
+    return render_template('quizOptions.html')
+
+@app.route('/Quize')
+def Quize():
+    return render_template('Quize.html')
+
+@app.route('/quizByTopic')
+def quiz_by_topic():
+    return render_template('quizByTopic.html') 
+
+@app.route('/chatbot', methods=['GET'])
+def chatbot_page():
+    return render_template('chatbot.html')
 
 
 @app.route('/chatbot', methods=['POST'])
@@ -156,11 +173,6 @@ def generate_interview():
     text_to_speech(questionArray)
 
     return render_template('One2One.html')
-
-@app.route('/Quize')
-def Quize():
-    return render_template('Quize.html')
-
 
 @app.route('/generate_quiz', methods=['POST'])
 def generate_quiz():
@@ -370,6 +382,66 @@ def chatbot_function(question):
 
     return generated_text
 
+
+def get_system_prompt():
+    return """ You will be a given a text input. Analyze the input and help the user by - Generating Multiple Types of Questions and Answers covering essential concepts form the give input.
+
+    1. Read the Text:
+       - Carefully read the provided text, noting key themes, concepts, significant terms, or phrases. Understand the context and the message conveyed by the text.
+
+    2. Identify Key Concepts:
+       - Highlight the main ideas presented in the text, such as philosophical concepts, instructions, historical context, or other significant points central to understanding the passage.
+
+    3. Generate Questions and Answers:
+       - Based on the key concepts identified, create the following types of questions. Ensure all questions are closely tied to the text and encourage exploration, comprehension, and application of the concepts.
+
+       a. Open-ended Questions (3 questions):
+       - Formulate questions that encourage deep thinking and exploration of the text. These questions should prompt the reader to consider the broader implications and meanings of the concepts.
+
+       b. Fill-in-the-Blank Questions (3 questions):
+       - Create questions where the reader needs to fill in the blanks with key terms or phrases from the text. These questions should test the reader’s recall and understanding of specific details.
+
+       c. True or False Questions (3 questions):
+       - Generate statements based on the text that the reader must evaluate as true or false. These should test the reader’s comprehension of the text’s key points.
+
+       d. Multiple Choice Questions (3 questions):
+       - Create multiple choice questions with four options, one of which is correct. These should assess the reader’s understanding of key concepts and details from the text.
+
+    4. Provide Answers:
+       - Answer each question using information from the text. Ensure that the answers are clear, concise, and informative, directly reflecting the content of the passage.
+    """
+
+# Function to request completion with retry on rate limit error
+def request_completion(input_text):
+    while True:
+        try:
+            system_prompt = get_system_prompt()
+            chat_completion = client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": f"{system_prompt}"},
+                    {"role": "user", "content": f"{input_text}"}
+                ],
+                model="llama3-70b-8192",
+                temperature=0.1
+            )
+            return chat_completion.choices[0].message.content
+        except RateLimitError as e:
+            error_message = e.args[0]
+            if 'rate limit reached' in error_message:
+                retry_after = float(error_message.split("Please try again in")[1].split("s.")[0])
+                time.sleep(retry_after)
+            else:
+                raise e
+
+@app.route('/quizByTopic')
+def quizByTopic():
+    return render_template('quizByTopic.html')
+
+@app.route('/generate', methods=['POST'])
+def generate():
+    input_text = request.json['input_text']
+    output = request_completion(input_text)
+    return jsonify({'output': output})
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -4,26 +4,134 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Choice Page</title>
-  <link rel="stylesheet" href="/static/css/choice.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* General body styling */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: #fff;
+    }
+
+    /* Main container styling */
+    #container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      max-width: 600px;
+      width: 90%;
+    }
+
+    /* Section Container */
+    #container div {
+      margin-bottom: 20px;
+    }
+
+    /* Header Styling */
+    h1 {
+      font-size: 2.5rem;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    /* Button Styling */
+    button {
+      background: linear-gradient(145deg, #42a5f5, #1e88e5);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      font-weight: 500;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    button:hover {
+      background: linear-gradient(145deg, #1e88e5, #42a5f5);
+      transform: translateY(-5px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    button:active {
+      transform: translateY(2px);
+    }
+
+    /* Chatbot button styling */
+    #chatbot-button {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+    }
+
+    #chatbot-button button {
+      background-color: #42a5f5;
+      color: white;
+      font-size: 1.8rem;
+      padding: 20px;
+      border-radius: 50%;
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    #chatbot-button button:hover {
+      background-color: #1e88e5;
+      transform: scale(1.1);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      button {
+        font-size: 1.1rem;
+        padding: 12px 20px;
+      }
+
+      #chatbot-button button {
+        font-size: 1.4rem;
+        padding: 15px;
+      }
+    }
+  </style>
 </head>
 <body>
-  
-
-  <div id="container" style="display:flex; flex-direction:row; align-item:center; justify-center:center;gap:4rem;">
-    <div id="cont1" style="background-color:black; border-radius:0.8rem;padding:10rem;">
+  <div id="container">
+    <!-- Quiz Section -->
+    <div id="cont1">
       <h1>Take Quiz</h1>
-      <a href="/Quize" target="_parent"><button>Take Quiz</button></a>
+      <a href="/quizOptions" target="_parent"><button>Take Quiz</button></a>
     </div>
-    <div id="cont2"style="background-color:black; border-radius:0.8rem;padding:8rem;">
+
+    <!-- Interview Section -->
+    <div id="cont2">
       <h1>Take Interview</h1>
       <a href="/interView" target="_parent"><button>Take Interview</button></a>
     </div>
-
-    <div id="cont2"style="background-color:black; border-radius:0.8rem;padding:8rem;">
-      <h1>Bot </h1>
-      <a href="/chatbot" target="_parent"><button>Chat Bot</button></a>
-    </div>
   </div>
 
+  <!-- Chatbot Icon Button at the bottom-right -->
+  <div id="chatbot-button">
+    <a href="/chatbot" target="_parent">
+      <button><i class="fas fa-robot"></i></button>
+    </a>
+  </div>
 </body>
 </html>
