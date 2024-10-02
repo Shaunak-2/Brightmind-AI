@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Choice Page</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <title>Quiz Options</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     /* General body styling */
     body {
@@ -16,54 +15,56 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      background: linear-gradient(135deg, #f093fb, #f5576c, #4facfe);
       color: #fff;
     }
 
     /* Main container styling */
     #container {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 30px;
-      background-color: rgba(255, 255, 255, 0.95);
-      padding: 40px;
+      text-align: center;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 50px;
       border-radius: 16px;
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-      text-align: center;
-      max-width: 600px;
-      width: 90%;
+      max-width: 500px;
+      width: 100%;
+      margin: auto;
     }
 
-    /* Section Container */
-    #container div {
-      margin-bottom: 20px;
-    }
-
-    /* Header Styling */
+    /* Header styling */
     h1 {
-      font-size: 2.5rem;
-      color: #333;
-      margin-bottom: 20px;
+      font-weight: 600;
+      margin-bottom: 40px;
+      color: #2C3E50;
+      font-size: 2.4rem;
+      background: linear-gradient(90deg, #ff8a00, #e52e71);
+      -webkit-background-clip: text;
+      color: transparent;
     }
 
-    /* Button Styling */
+    /* Quiz options styling */
+    #quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Button styling */
     button {
-      background: linear-gradient(145deg, #42a5f5, #1e88e5);
-      color: white;
-      border: none;
-      padding: 15px 30px;
-      font-size: 1.2rem;
+      padding: 15px 20px;
+      font-size: 1.3rem;
       font-weight: 500;
-      border-radius: 12px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(145deg, #ff512f, #dd2476);
+      color: white;
       cursor: pointer;
       transition: all 0.3s ease;
       box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
     }
 
     button:hover {
-      background: linear-gradient(145deg, #1e88e5, #42a5f5);
+      background: linear-gradient(145deg, #ff8a00, #e52e71);
       transform: translateY(-5px);
       box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
     }
@@ -82,7 +83,7 @@
     #chatbot-button button {
       background-color: #42a5f5;
       color: white;
-      font-size: 1.8rem;
+      font-size: 1.5rem;
       padding: 20px;
       border-radius: 50%;
       box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
@@ -94,19 +95,24 @@
       transform: scale(1.1);
     }
 
+    #chatbot-button button i {
+      pointer-events: none;
+    }
+
     /* Responsive adjustments */
     @media (max-width: 768px) {
-      h1 {
-        font-size: 2rem;
+      #container {
+        padding: 30px;
+        width: 90%;
       }
 
       button {
-        font-size: 1.1rem;
         padding: 12px 20px;
+        font-size: 1.1rem;
       }
 
       #chatbot-button button {
-        font-size: 1.4rem;
+        font-size: 1.2rem;
         padding: 15px;
       }
     }
@@ -114,23 +120,17 @@
 </head>
 <body>
   <div id="container">
-    <!-- Quiz Section -->
-    <div id="cont1">
-      <h1>Take Quiz</h1>
-      <a href="/quizOptions" target="_parent"><button>Take Quiz</button></a>
-    </div>
-
-    <!-- Interview Section -->
-    <div id="cont2">
-      <h1>Take Interview</h1>
-      <a href="/interView" target="_parent"><button>Take Interview</button></a>
+    <h1>Choose Quiz Type</h1>
+    <div id="quiz-options">
+      <a href="/Quize" target="_parent"><button>Text-Based Quiz</button></a>
+      <a href="/quizByTopic" target="_parent"><button>Topic-Wise Quiz</button></a>
     </div>
   </div>
 
   <!-- Chatbot Icon Button at the bottom-right -->
   <div id="chatbot-button">
     <a href="/chatbot" target="_parent">
-      <button><i class="fas fa-robot"></i></button>
+      <button><i class="fas fa-robot"></i></button> <!-- Font Awesome chatbot icon -->
     </a>
   </div>
 </body>
