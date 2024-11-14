@@ -13,8 +13,6 @@ import cv2
 from dotenv import load_dotenv
 from groq import Groq, RateLimitError 
 
-
-
 user_responses = []
 
 
@@ -40,6 +38,18 @@ app = Flask(__name__)
 def index():
     return render_template('interface.html')
 
+@app.route('/gamification')
+def gamification():
+    return render_template('gamification.html')
+
+@app.route('/memoryGame')
+def memoryGame():
+    return render_template('memoryGame.html')
+
+@app.route('/knowledgeLadder')
+def knowledgeLadder():
+    return render_template('knowledgeLadder.html')
+
 @app.route('/quizOptions')
 def quiz_options():
     return render_template('quizOptions.html')
@@ -47,10 +57,6 @@ def quiz_options():
 @app.route('/Quize')
 def Quize():
     return render_template('Quize.html')
-
-@app.route('/quizByTopic')
-def quiz_by_topic():
-    return render_template('quizByTopic.html') 
 
 @app.route('/chatbot', methods=['GET'])
 def chatbot_page():
@@ -180,7 +186,7 @@ def generate_quiz():
     num_questions = int(request.form['num_questions'])
 
     # Generate questions
-    query = f'{query} Can you generate {num_questions} questions on the above paragraph question should be in MCQ type. Quiz format should be like this: **Question ----------- (a) option a (b) option b (c) option c (d) option d'
+    query = f'{query} Can you generate {num_questions} questions on the above paragraph? Each question should be in MCQ format, like: **Question ----------- (a) option a (b) option b (c) option c (d) option d (Correct Answer: option)'
     model_name = 'gemini-pro'
     model = genai.GenerativeModel(model_name)
     response = model.generate_content(query)
@@ -193,27 +199,37 @@ def generate_quiz():
     options_b = []
     options_c = []
     options_d = []
+    correct_answers = []  # To store correct answers
 
     current_question = ""
     current_a = ""
     current_b = ""
     current_c = ""
     current_d = ""
+    current_correct_answer = ""  # To capture correct answers
 
     for line in lines:
         line = line.strip()
+        
+        # Detect a new question start
         if line.startswith("**Question"):
+            # If a question was already being processed, save it before starting a new one
             if current_question:
                 questions.append(current_question.strip())
                 options_a.append(current_a.strip())
                 options_b.append(current_b.strip())
                 options_c.append(current_c.strip())
                 options_d.append(current_d.strip())
-            current_question = ""
+                correct_answers.append(current_correct_answer)  # Save correct answer for the current question
+
+            # Reset variables for the new question
+            current_question = line.replace("**Question", "").strip()
             current_a = ""
             current_b = ""
             current_c = ""
             current_d = ""
+            current_correct_answer = ""
+        
         elif line.startswith("(a)"):
             current_a = line.replace("(a)", "").strip()
         elif line.startswith("(b)"):
@@ -222,28 +238,34 @@ def generate_quiz():
             current_c = line.replace("(c)", "").strip()
         elif line.startswith("(d)"):
             current_d = line.replace("(d)", "").strip()
+        elif line.startswith("(Correct Answer:"):
+            # Capture the correct answer based on its label (a, b, c, or d)
+            current_correct_answer = line.replace("(Correct Answer:", "").replace(")", "").strip()
+        
         else:
             if current_question:
                 current_question += " " + line.strip()
             else:
                 current_question = line.strip()
 
+    # Save the last question if there is any
     if current_question:
         questions.append(current_question.strip())
         options_a.append(current_a.strip())
         options_b.append(current_b.strip())
         options_c.append(current_c.strip())
         options_d.append(current_d.strip())
+        correct_answers.append(current_correct_answer)  # Add final correct answer
 
-    # Convert lists to JSON
+    # Convert lists to JSON for rendering
     questions_json = json.dumps(questions)
     options_a_json = json.dumps(options_a)
     options_b_json = json.dumps(options_b)
     options_c_json = json.dumps(options_c)
     options_d_json = json.dumps(options_d)
+    correct_answers_json = json.dumps(correct_answers)
 
-    return render_template('CreateQuiz.html', questions=questions_json, options_a=options_a_json, options_b=options_b_json, options_c=options_c_json, options_d=options_d_json)
-
+    return render_template('CreateQuiz.html', questions=questions_json, options_a=options_a_json, options_b=options_b_json, options_c=options_c_json, options_d=options_d_json, correct_answers=correct_answers_json)
 
 @app.route('/startInterview')
 def startInterview():
@@ -336,10 +358,6 @@ def text_to_speech(questionArray , language='en'):
         print("saved")
 
 
-
-
-
-
 def save_feedback(feedback):
     with open("feedback.csv", "a", newline="") as file:
         writer = csv.writer(file)
@@ -356,8 +374,8 @@ def chatbot_function(question):
         {
             "role": "system",
             "content": (
-                "You are a helpful assistant on a platform designed for students and job seekers. "
-                "You help users by providing answers to general knowledge questions, guiding them through quizzes, "
+                "You are a helpful assistant on a platform designed for graduated or ungraduated students and job seekers. Which is basically has different modules like text based quiz or topic based quiz or interview where ai avataar will take an interview of user."
+                "You help users by providing answers to general knowledge questions, guiding them through quizzes, puzzles or today's technology questions"
                 "and collecting feedback on the platform's features. Answer questions clearly and provide suggestions "
                 "based on the user's needs."
             )

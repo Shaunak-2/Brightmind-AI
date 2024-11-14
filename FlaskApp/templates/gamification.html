@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gamification</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* General body styling */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #2193b0, #6dd5ed);
+      color: #fff;
+    }
+
+    /* Main container styling */
+    #container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      max-width: 600px;
+      width: 90%;
+      transform: translateY(0);
+      animation: fadeIn 1s ease-out;
+    }
+
+    /* Section Container */
+    #container div {
+      margin-bottom: 20px;
+      transition: transform 0.3s ease;
+    }
+    
+    #container div:hover {
+      transform: translateY(-5px);
+    }
+
+    /* Header Styling */
+    h1 {
+      font-size: 2.5rem;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    /* Button Styling */
+    button {
+      background: linear-gradient(145deg, #42a5f5, #1e88e5);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      font-weight: 500;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    button:hover {
+      background: linear-gradient(145deg, #1e88e5, #42a5f5);
+      transform: translateY(-5px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    button:active {
+      transform: translateY(2px);
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      button {
+        font-size: 1.1rem;
+        padding: 12px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <!-- Memory Game Section -->
+    <div id="memory-game">
+      <h1>Memory Game</h1>
+      <a href="/memoryGame" target="_parent"><button>Play Memory Game</button></a>
+    </div>
+
+    <!-- Knowledge Ladder Section -->
+    <div id="knowledge-ladder">
+      <h1>Knowledge Ladder</h1>
+      <a href="/knowledgeLadder" target="_parent"><button>Play Knowledge Ladder</button></a>
+    </div>
+  </div>
+</body>
+</html>

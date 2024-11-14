@@ -34,11 +34,18 @@
       text-align: center;
       max-width: 600px;
       width: 90%;
+      transform: translateY(0);
+      animation: fadeIn 1s ease-out;
     }
 
     /* Section Container */
     #container div {
       margin-bottom: 20px;
+      transition: transform 0.3s ease;
+    }
+    
+    #container div:hover {
+      transform: translateY(-5px);
     }
 
     /* Header Styling */
@@ -94,6 +101,12 @@
       transform: scale(1.1);
     }
 
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     /* Responsive adjustments */
     @media (max-width: 768px) {
       h1 {
@@ -124,6 +137,12 @@
     <div id="cont2">
       <h1>Take Interview</h1>
       <a href="/interView" target="_parent"><button>Take Interview</button></a>
+    </div>
+
+    <!-- Gamification Section -->
+    <div id="cont3">
+      <h1>Gamification</h1>
+      <a href="/gamification" target="_parent"><button>Play & Learn</button></a>
     </div>
   </div>
 

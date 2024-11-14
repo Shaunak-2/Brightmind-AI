@@ -1,0 +1,127 @@
+/* Reset and basic styling */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+}
+
+/* Main container styling */
+.container {
+    text-align: center;
+    max-width: 450px;
+    padding: 30px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.container:hover {
+    transform: scale(1.02);
+}
+
+h1 {
+    font-size: 2.5em;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+#level-text {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 20px;
+    background: #e7f3ff;
+    padding: 8px;
+    border-radius: 5px;
+}
+
+#question-box {
+    background-color: #f9fafb;
+    border: 1px solid #dfe4ea;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+#question-text {
+    font-size: 1.3em;
+    font-weight: 500;
+    color: #444;
+    transition: color 0.3s ease;
+}
+
+#answers {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+button {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    outline: none;
+}
+
+button:hover {
+    background-color: #0056b3;
+    transform: scale(1.03);
+}
+
+button:active {
+    transform: scale(1);
+}
+
+button.correct {
+    background-color: #28a745;
+}
+
+button.wrong {
+    background-color: #dc3545;
+}
+
+/* Animation for correct/wrong answers */
+button.correct,
+button.wrong {
+    animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+}
+
+/* Start button */
+#start-btn {
+    font-size: 1.1em;
+    padding: 12px 20px;
+    background: #17a2b8;
+    border-radius: 8px;
+}
+
+#start-btn:hover {
+    background: #138496;
+}
+
+#start-btn:active {
+    transform: scale(0.98);
+}

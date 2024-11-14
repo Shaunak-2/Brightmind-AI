@@ -3,27 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Game</title>
-    <link rel="stylesheet" href="/static/css/Quize.css">
+    <title>Video with Questions (70:30 Layout)</title>
+    <link rel="stylesheet" href="/static/css/interview.css">
 </head>
 <body>
-    <div class="quiz-container">
-        <h1>Interview Questions</h1>
-        <h1>Welcome To Interview Generator!</h1>
-    <h1>Choose an Option</h1>
-    <form method="POST" action="/generate_interview">
-      <label for="nameInput">Enter your text:</label>
-      <input type="text" id="nameInput" name="query" placeholder="Your text">
-      <br><br>
 
-      <label for="questionCount">Number of questions:</label>
-      <input type="number" id="questionCount" name="num_questions" min="1" placeholder="Number of questions">
-      <br><br>
+<div id="main-container">
+    <!-- Video Section (70% width) -->
+    <div class="video-section">
+        <video id="main-video"></video> <!-- Removed 'controls' attribute -->
+        <video id="small-video" autoplay muted></video>
 
-      
-      <button type="submit" name="interviewButton" id="interviewButton">Take Interview</button>
-    </form> 
-  
+        <div class="controls">
+            <button id="playPauseButton">Play</button>
+            <button id="replayButton">Replay</button>
+            <button id="nextButton" style="display:none;">Next</button> <!-- Initially hidden -->
+        </div>
     </div>
+
+    <!-- Questions Section (30% width) -->
+    <div class="questions-section">
+        <h2>Question</h2>
+        <div id="question-display"></div>
+        <h2>Answer</h2>
+        <div id="answer-display">Press Spacebar to start answering</div>
+        
+        <!-- Clear Answer button at the bottom -->
+        <button id="clearAnswerButton">Clear Answer</button>
+
+        <div id="continue-options" style="display:none;">
+            <p>Do you want to continue answering?</p>
+            <button id="yesButton">Yes</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const mainVideoElement = document.getElementById('main-video');
+    const smallVideoElement = document.getElementById('small-video');
+    const playPauseButton = document.getElementById('playPauseButton');
+    const replayButton = document.getElementById('replayButton');
+    const nextButton = document.getElementById('nextButton');
+    const questionDisplay = document.getElementById('question-display');
+    const answerDisplay = document.getElementById('answer-display');
+    const clearAnswerButton = document.getElementById('clearAnswerButton');
+    const continueOptions = document.getElementById('continue-options');
+    const yesButton = document.getElementById('yesButton');
+
+    let questionIndex = 0;
+    let currentAnswer = "";  // Store the user's current answer
+    let userResponses = [];  // Store user responses for each question
+    let recognition;
+
+    // Sample General Knowledge Questions and Corresponding Videos
+    const questions = [
+        { question: "What is the capital of India?", video: "/static/images/output1.mp4" },
+        { question: "Who is the current president of the United States?", video: "/static/images/output2.mp4" },
+        { question: "What is the largest planet in our solar system?", video: "/static/images/output3.mp4" }
+    ];
+
+    // Function to display question with character-by-character rendering
+    function displayQuestion(question) {
+        questionDisplay.textContent = ""; // Clear previous question
+        let index = 0;
+
+        // Function to show characters one by one
+        function typeCharacter() {
+            if (index < question.length) {
+                questionDisplay.textContent += question.charAt(index);
+                index++;
+                setTimeout(typeCharacter, 100); // Type character every 100ms
+            }
+        }
+        
+        typeCharacter();
+    }
+
+    // Start user's webcam video in the small box
+    async function startSmallVideo() {
+        try {
+            const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            smallVideoElement.srcObject = mediaStream;
+        } catch (error) {
+            console.error('Error accessing webcam:', error);
+        }
+    }
+
+    // Load the corresponding video based on the current question index
+    function loadMainVideo() {
+        mainVideoElement.src = questions[questionIndex].video;
+        mainVideoElement.play();
+        playPauseButton.textContent = 'Pause';
+        displayQuestion(questions[questionIndex].question);
+    }
+
+    // Initialize speech recognition
+    function initSpeechRecognition() {
+        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            currentAnswer += transcript + " ";  // Append new answer to current answer
+            answerDisplay.textContent = "Your Answer: " + currentAnswer;  // Display current answer
+        };
+
+        recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+        };
+
+        recognition.onend = () => {
+            continueOptions.style.display = 'block';  // Show "Do you want to continue" options
+        };
+    }
+
+    // Handle starting speech recognition
+    function startAnswering() {
+        if (!recognition) initSpeechRecognition();  // Only initialize once
+        answerDisplay.textContent = 'Listening...';  // Show listening message
+        recognition.start();  // Start speech recognition
+    }
+
+    // Handle "Yes" option for continuing answering
+    yesButton.addEventListener('click', () => {
+        continueOptions.style.display = 'none';  // Hide the options after the user chooses
+        startAnswering();  // Resume speech recognition
+    });
+
+    // Clear the current answer
+    clearAnswerButton.addEventListener('click', () => {
+        currentAnswer = "";
+        answerDisplay.textContent = "Press Spacebar to start answering";  // Reset display
+    });
+
+    // Move to the next question and update responses
+    function nextQuestion() {
+        userResponses[questionIndex] = (userResponses[questionIndex] || "") + currentAnswer.trim() + " ";  // Store the current answer
+        currentAnswer = "";  // Clear the current answer
+        answerDisplay.textContent = 'Your Answers: ' + userResponses[questionIndex];  // Show cumulative answer
+        continueOptions.style.display = 'none'; // Clear continue options
+        questionIndex++;
+        if (questionIndex < questions.length) {
+            loadMainVideo();  // Load the next video
+        } else {
+            // Redirect to results page
+            const resultsPage = `/results.html?answers=${encodeURIComponent(JSON.stringify(userResponses))}`;
+            window.location.href = resultsPage;
+        }
+    }
+
+    // Play/Pause button functionality
+    playPauseButton.addEventListener('click', () => {
+        if (mainVideoElement.paused) {
+            mainVideoElement.play();
+            playPauseButton.textContent = 'Pause';
+        } else {
+            mainVideoElement.pause();
+            playPauseButton.textContent = 'Play';
+        }
+    });
+
+    // Replay button functionality
+    replayButton.addEventListener('click', () => {
+        mainVideoElement.currentTime = 0;
+        mainVideoElement.play();
+        displayQuestion(questions[questionIndex].question);
+        playPauseButton.textContent = 'Pause';
+    });
+
+    // Handle keypress events
+    document.addEventListener('keydown', (event) => {
+        if (event.code === 'Space') {
+            startAnswering();  // Start answering on Spacebar press
+            event.preventDefault();  // Prevent scrolling the page
+        } else if (event.code === 'Enter') {
+            nextQuestion();  // Move to the next question on Enter press
+        }
+    });
+
+    // Initialize everything
+    window.onload = function() {
+        startSmallVideo();
+        loadMainVideo();
+    };
+</script>
+
 </body>
 </html>

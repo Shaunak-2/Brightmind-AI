@@ -7,144 +7,153 @@
     <link rel="stylesheet" href="/static/css/style.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-
+        
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #f4f4f4;
             margin: 0;
             padding: 0;
             display: flex;
-            justify-content: center;
-            align-items: center;
             height: 100vh;
         }
 
-        .quiz-container {
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            padding: 30px;
-            width: 350px;
-            transition: transform 0.4s ease-in-out;
-        }
-
-        .quiz-header h2 {
-            margin-bottom: 20px;
-            color: #333;
-            font-size: 22px;
-            text-align: center;
-        }
-
-        .progress-bar {
+        .container {
+            display: flex;
             width: 100%;
-            height: 10px;
-            background-color: #ddd;
-            margin-bottom: 20px;
+        }
+
+        .sidebar {
+            background-color: #0f3051;
+            color: #ECF0F1;
+            padding: 20px;
+            width: 200px;
+        }
+
+        .quiz-area {
+            padding: 20px;
+            flex-grow: 1;
+            background-color: #ECF0F1;
+            position: relative;
+        }
+
+        .question-container {
+            margin: 20px 0;
+            font-size: 1.5em;
+        }
+
+        .options {
+            width: 60%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .option {
+            background-color: white;
+            color: black;
+            border: 2px solid #3498DB;
+            padding: 10px;
+            margin: 5px 0;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
             border-radius: 5px;
-            overflow: hidden;
         }
 
-        .progress {
-            height: 100%;
-            background-color: #4caf50;
-            width: 0;
-            transition: width 0.4s ease;
-        }
-
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        ul li {
-            margin-bottom: 15px;
-        }
-
-        ul li label {
-            display: block;
+        .option:hover {
             background-color: #f0f0f0;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
         }
 
-        ul li:hover label {
-            background-color: #ddd;
+        .selected {
+            border-color: grey;
+            background-color: #f0f0f0;
         }
 
-        ul li input[type="radio"] {
-            display: none;
-        }
-
-        button {
-            background-color: #007BFF;
-            border: none;
+        #next-btn {
+            background-color: #27AE60;
             color: white;
-            padding: 12px 20px;
-            font-size: 16px;
-            border-radius: 5px;
+            border: none;
+            padding: 10px;
             cursor: pointer;
-            width: 100%;
-            transition: background-color 0.3s ease;
+            border-radius: 5px;
         }
 
-        button:hover {
-            background-color: #0056b3;
+        #next-btn:hover {
+            background-color: #219653;
         }
 
-        #score {
-            font-size: 18px;
+        #gratitude-message, #result {
             margin-top: 20px;
-            text-align: center;
+            font-size: 1.2em;
         }
 
-        #feedback {
-            font-size: 16px;
-            text-align: center;
-            margin-bottom: 10px;
+        #show-results {
+            margin-top: 20px;
+            background-color: #3498DB;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
         }
 
-        .hidden {
-            display: none;
+        #show-results:hover {
+            background-color: #2980B9;
+        }
+
+        .question-node {
+            margin: 5px 0;
+            padding: 5px;
+            border: 1px solid #7F8C8D;
+        }
+
+        .active {
+            background-color: #E74C3C;
+            color: white;
+        }
+
+        .inactive {
+            background-color: #95A5A6;
+            color: white;
+        }
+
+        #timer {
+            font-size: 24px;
+            font-weight: bold;
+            color: black;
+        }
+
+        .blinking {
+            animation: blinkingText 1s infinite;
+        }
+
+        @keyframes blinkingText {
+            0% { color: red; }
+            50% { color: transparent; }
+            100% { color: red; }
         }
     </style>
 </head>
 <body>
-    <div class="quiz-container" id="quiz">
-        <div class="progress-bar">
-            <div class="progress" id="progress"></div>
+    <div class="container">
+        <div class="sidebar">
+            <h2>Question Progress</h2>
+            <ul id="question-list"></ul>
         </div>
-        <div class="quiz-header">
-            <!-- Question number added -->
-            <h2 id="question-number">Question 1</h2>
-            <h2 id="question">Question Text</h2>
-            <p id="feedback" class="hidden"></p>
-            <ul>
-                <li>
-                    <!-- Option numbering added (1.) -->
-                    <input type="radio" name="answer" id="a" class="answer">
-                    <label for="a" id="a_text">1. Answer A</label>
-                </li>
-                <li>
-                    <!-- Option numbering added (2.) -->
-                    <input type="radio" name="answer" id="b" class="answer">
-                    <label for="b" id="b_text">2. Answer B</label>
-                </li>
-                <li>
-                    <!-- Option numbering added (3.) -->
-                    <input type="radio" name="answer" id="c" class="answer">
-                    <label for="c" id="c_text">3. Answer C</label>
-                </li>
-                <li>
-                    <!-- Option numbering added (4.) -->
-                    <input type="radio" name="answer" id="d" class="answer">
-                    <label for="d" id="d_text">4. Answer D</label>
-                </li>
-            </ul>
+        
+        <div class="quiz-area">
+            <div id="timer">Time left: 15 seconds</div>
+            <div class="question-container">
+                <div id="question">Question Text</div>
+                <div class="options">
+                    <div class="option" onclick="answerQuestion(0)">Option A</div>
+                    <div class="option" onclick="answerQuestion(1)">Option B</div>
+                    <div class="option" onclick="answerQuestion(2)">Option C</div>
+                    <div class="option" onclick="answerQuestion(3)">Option D</div>
+                </div>
+            </div>
+            <button id="next-btn" onclick="nextQuestion()">Next Question</button>
+            <div id="gratitude-message" style="display: none;">Thank you for participating!</div>
+            <button id="show-results" style="display: none;" onclick="displayResult()">Show Results</button>
+            <div id="result" class="hidden"></div>
         </div>
-        <button id="submit">Submit</button>
-        <p id="score"></p>
     </div>
 
     <script>
@@ -153,83 +162,126 @@
         const options_b = JSON.parse('{{ options_b|safe }}');
         const options_c = JSON.parse('{{ options_c|safe }}');
         const options_d = JSON.parse('{{ options_d|safe }}');
-        const correct_answers = ["b", "b", "b", "b"]; // Example correct answers
+        const correct_answers = JSON.parse('{{ correct_answers|safe }}'); // Correct answers from server
+                
+        let currentQuestionIndex = 0;
+        let timePerQuestion = 15; // 10 seconds per question
+        let timeLeft = timePerQuestion;
+        let userAnswers = [];
+        let timerInterval;
 
-        const quiz = document.getElementById('quiz');
-        const answerEls = document.querySelectorAll('.answer');
-        const questionEl = document.getElementById('question');
-        const questionNumberEl = document.getElementById('question-number');  // Question number element
-        const a_text = document.getElementById('a_text');
-        const b_text = document.getElementById('b_text');
-        const c_text = document.getElementById('c_text');
-        const d_text = document.getElementById('d_text');
-        const submitBtn = document.getElementById('submit');
-        const scoreEl = document.getElementById('score');
-        const progressEl = document.getElementById('progress');
-        const feedbackEl = document.getElementById('feedback');
-
-        let currentQuiz = 0;
-        let score = 0;
-
-        loadQuiz();
-
-        function loadQuiz() {
-            deselectAnswers();
-
-            // Display current question number
-            questionNumberEl.innerText = `Question ${currentQuiz + 1}`;
-            questionEl.innerText = questions[currentQuiz];
-            a_text.innerText = `1. ${options_a[currentQuiz]}`;
-            b_text.innerText = `2. ${options_b[currentQuiz]}`;
-            c_text.innerText = `3. ${options_c[currentQuiz]}`;
-            d_text.innerText = `4. ${options_d[currentQuiz]}`;
-
-            progressEl.style.width = `${(currentQuiz / questions.length) * 100}%`;
-            feedbackEl.classList.add('hidden');
+        function startQuiz() {
+            displayQuestion();
+            displayQuestionList();
+            startTimer(); // Start the timer when the quiz starts
         }
 
-        function deselectAnswers() {
-            answerEls.forEach(answerEl => answerEl.checked = false);
+        function displayQuestion() {
+            document.getElementById('question').innerText = `${currentQuestionIndex + 1}. ${questions[currentQuestionIndex]}`;
+            document.querySelectorAll('.option')[0].innerText = options_a[currentQuestionIndex];
+            document.querySelectorAll('.option')[1].innerText = options_b[currentQuestionIndex];
+            document.querySelectorAll('.option')[2].innerText = options_c[currentQuestionIndex];
+            document.querySelectorAll('.option')[3].innerText = options_d[currentQuestionIndex];
+            updateQuestionList();
+            resetTimer(); // Reset the timer for the next question
         }
 
-        function getSelected() {
-            let answer;
-            answerEls.forEach(answerEl => {
-                if (answerEl.checked) {
-                    answer = answerEl.id;
+        function updateQuestionList() {
+            const questionList = document.getElementById('question-list');
+            questionList.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const node = document.createElement('li');
+                node.className = 'question-node ' + (index === currentQuestionIndex ? 'active' : 'inactive');
+                node.innerHTML = `Question ${index + 1}`;
+                questionList.appendChild(node);
+            });
+        }
+
+        function answerQuestion(answerIndex) {
+            userAnswers[currentQuestionIndex] = answerIndex;
+
+            document.querySelectorAll('.option').forEach((option, index) => {
+                option.classList.remove('selected');
+                if (index === answerIndex) {
+                    option.classList.add('selected');
                 }
             });
-            return answer;
         }
 
-        submitBtn.addEventListener('click', () => {
-            const answer = getSelected();
-
-            if (answer) {
-                if (answer === correct_answers[currentQuiz]) {
-                    score++;
-                    feedbackEl.innerText = "Correct!";
-                    feedbackEl.style.color = "green";
-                } else {
-                    feedbackEl.innerText = "Wrong!";
-                    feedbackEl.style.color = "red";
-                }
-                feedbackEl.classList.remove('hidden');
-
-                currentQuiz++;
-
-                setTimeout(() => {
-                    if (currentQuiz < questions.length) {
-                        loadQuiz();
-                    } else {
-                        quiz.innerHTML = `
-                            <h2>You answered ${score}/${questions.length} questions correctly</h2>
-                            <button onclick="location.reload()">Reload</button>
-                        `;
-                    }
-                }, 1000);  // 1 second delay to show feedback
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                displayQuestion();
+            } else {
+                clearInterval(timerInterval); // Stop the timer when all questions are answered
+                displayGratitudeMessage(); // Display gratitude message after the last question
+                document.getElementById('show-results').style.display = 'block'; // Show results button only after quiz ends
             }
-        });
+        }
+
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+
+                const timerElement = document.getElementById('timer');
+                timerElement.textContent = `Time left: ${timeLeft} seconds`;
+
+                if (timeLeft === 5) {
+                    alert("Only 5 seconds remaining!");
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval); // Stop the timer
+                    nextQuestion(); // Move to the next question
+                }
+            }, 1000);
+        }
+
+        function resetTimer() {
+            timeLeft = timePerQuestion;
+            clearInterval(timerInterval); // Clear the existing interval
+            startTimer(); // Start a new interval for the next question
+        }
+
+        function displayGratitudeMessage() {
+            const gratitudeMessage = document.getElementById('gratitude-message');
+            gratitudeMessage.style.display = 'block'; // Show the gratitude message
+            gratitudeMessage.classList.remove('hidden');
+        }
+
+
+        const answerLetters = ["a", "b", "c", "d"]; 
+        function displayResult() {
+            let score = 0; // Initialize score
+
+            const resultElement = document.getElementById('result');
+            resultElement.innerHTML = ''; // Clear previous result content
+
+            questions.forEach((question, index) => {
+                const userAnswer = userAnswers[index] !== undefined ? answerLetters[userAnswers[index]] : "No Answer";
+                const correctAnswer = correct_answers[index];
+
+                if (userAnswer === correctAnswer) {
+                    score++;
+                }
+
+                const summary = document.createElement('div');
+                summary.className = 'answer-summary';
+                summary.innerHTML = `
+                    <strong>Question ${index + 1}:</strong> ${questions[index]}<br>
+                    Your answer: <span style="color: ${userAnswer === correctAnswer ? 'green' : 'red'};">${userAnswer}</span><br>
+                    Correct answer: ${correctAnswer}
+                `;
+                resultElement.appendChild(summary);
+            });
+            
+            resultElement.insertAdjacentHTML('afterbegin', `You got ${score} out of ${questions.length} correct!`);
+            resultElement.classList.remove('hidden');
+        }
+
+        startQuiz();
     </script>
 </body>
 </html>
