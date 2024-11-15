@@ -5,35 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Quiz Game</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-        
+
         body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            height: 100vh;
-        }
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        height: 100vh;
+        background-color: #f3f4f6; /* Light gray background */
+    }
 
-        .container {
-            display: flex;
-            width: 100%;
-        }
+    .container {
+        display: flex;
+        width: 100%;
+    }
 
-        .sidebar {
-            background-color: #0f3051;
-            color: #ECF0F1;
-            padding: 20px;
-            width: 200px;
-        }
+    /* Sidebar and quiz area styling */
+    .sidebar {
+        background-color: #0f3051;
+        color: #ECF0F1;
+        padding: 20px;
+        width: 200px;
+    }
 
-        .quiz-area {
-            padding: 20px;
-            flex-grow: 1;
-            background-color: #ECF0F1;
-            position: relative;
-        }
+    .quiz-area {
+        padding: 20px;
+        flex-grow: 1;
+        background-color: #ECF0F1;
+        position: relative;
+    }
+
+    /* Graph (canvas) styling */
+    canvas {
+        margin-top: 20px;
+        max-width: 80%;  /* Medium width for the chart, fitting within the quiz area */
+        max-height: 450px; /* Medium height */
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        background-color: #f8f9fa; /* Subtle light background for better contrast */
+        border: 1px solid #ddd; /* Soft border for clearer edge definition */
+        border-radius: 10px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    }
 
         .question-container {
             margin: 20px 0;
@@ -66,16 +83,17 @@
             background-color: #f0f0f0;
         }
 
-        #next-btn {
+        #next-btn, #skip-btn {
             background-color: #27AE60;
             color: white;
             border: none;
             padding: 10px;
             cursor: pointer;
             border-radius: 5px;
+            margin-right: 10px;
         }
 
-        #next-btn:hover {
+        #next-btn:hover, #skip-btn:hover {
             background-color: #219653;
         }
 
@@ -137,7 +155,7 @@
             <h2>Question Progress</h2>
             <ul id="question-list"></ul>
         </div>
-        
+
         <div class="quiz-area">
             <div id="timer">Time left: 15 seconds</div>
             <div class="question-container">
@@ -150,8 +168,10 @@
                 </div>
             </div>
             <button id="next-btn" onclick="nextQuestion()">Next Question</button>
+            <button id="skip-btn" onclick="skipQuestion()">Skip Question</button>
             <div id="gratitude-message" style="display: none;">Thank you for participating!</div>
             <button id="show-results" style="display: none;" onclick="displayResult()">Show Results</button>
+            <canvas id="resultChart" width="600" height="400"></canvas>
             <div id="result" class="hidden"></div>
         </div>
     </div>
@@ -163,9 +183,9 @@
         const options_c = JSON.parse('{{ options_c|safe }}');
         const options_d = JSON.parse('{{ options_d|safe }}');
         const correct_answers = JSON.parse('{{ correct_answers|safe }}'); // Correct answers from server
-                
+
         let currentQuestionIndex = 0;
-        let timePerQuestion = 15; // 10 seconds per question
+        let timePerQuestion = 15; // 15 seconds per question
         let timeLeft = timePerQuestion;
         let userAnswers = [];
         let timerInterval;
@@ -173,7 +193,7 @@
         function startQuiz() {
             displayQuestion();
             displayQuestionList();
-            startTimer(); // Start the timer when the quiz starts
+            startTimer();
         }
 
         function displayQuestion() {
@@ -183,7 +203,7 @@
             document.querySelectorAll('.option')[2].innerText = options_c[currentQuestionIndex];
             document.querySelectorAll('.option')[3].innerText = options_d[currentQuestionIndex];
             updateQuestionList();
-            resetTimer(); // Reset the timer for the next question
+            resetTimer();
         }
 
         function updateQuestionList() {
@@ -214,27 +234,31 @@
             if (currentQuestionIndex < questions.length) {
                 displayQuestion();
             } else {
-                clearInterval(timerInterval); // Stop the timer when all questions are answered
-                displayGratitudeMessage(); // Display gratitude message after the last question
+                clearInterval(timerInterval);
+                displayGratitudeMessage(); 
                 document.getElementById('show-results').style.display = 'block'; // Show results button only after quiz ends
             }
         }
 
+        function skipQuestion() {
+            userAnswers[currentQuestionIndex] = "Skipped"; // Mark the question as skipped
+            nextQuestion(); // Move to the next question
+        }
 
         function startTimer() {
             timerInterval = setInterval(() => {
                 timeLeft--;
 
-                const timerElement = document.getElementById('timer');
+                const timerElement = document.getElementById('timer');  
                 timerElement.textContent = `Time left: ${timeLeft} seconds`;
 
                 if (timeLeft === 5) {
-                    alert("Only 5 seconds remaining!");
+                    timerElement.classList.add('blinking');
                 }
 
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval); // Stop the timer
-                    nextQuestion(); // Move to the next question
+                    skipQuestion(); // Auto-skip the question when time runs out
                 }
             }, 1000);
         }
@@ -251,34 +275,97 @@
             gratitudeMessage.classList.remove('hidden');
         }
 
+        const answerLetters = ["a", "b", "c", "d"];
+        function displayResultChart() {
+            let correctCount = 0;
 
-        const answerLetters = ["a", "b", "c", "d"]; 
-        function displayResult() {
-            let score = 0; // Initialize score
+            const chartData = questions.map((question, index) => {
+                const userAnswer = userAnswers[index] !== undefined ? answerLetters[userAnswers[index]] : "Skipped";
+                
+                const correctAnswer = correct_answers[index].toLowerCase();
 
-            const resultElement = document.getElementById('result');
-            resultElement.innerHTML = ''; // Clear previous result content
-
-            questions.forEach((question, index) => {
-                const userAnswer = userAnswers[index] !== undefined ? answerLetters[userAnswers[index]] : "No Answer";
-                const correctAnswer = correct_answers[index];
-
-                if (userAnswer === correctAnswer) {
-                    score++;
+                let correct = 0, incorrect = 0, skipped = 0;
+                if (userAnswer === "Skipped") {
+                    skipped = 1;
+                } else if (userAnswer === correctAnswer) {
+                    correct = 1;
+                    correctCount++;
+                } else {
+                    incorrect = 1;
                 }
 
-                const summary = document.createElement('div');
-                summary.className = 'answer-summary';
-                summary.innerHTML = `
-                    <strong>Question ${index + 1}:</strong> ${questions[index]}<br>
-                    Your answer: <span style="color: ${userAnswer === correctAnswer ? 'green' : 'red'};">${userAnswer}</span><br>
-                    Correct answer: ${correctAnswer}
-                `;
-                resultElement.appendChild(summary);
+                return {
+                    label: `Q${index + 1}`,
+                    correct,
+                    incorrect,
+                    skipped,
+                    correctAnswer // For tooltip
+                };
             });
-            
-            resultElement.insertAdjacentHTML('afterbegin', `You got ${score} out of ${questions.length} correct!`);
-            resultElement.classList.remove('hidden');
+
+            let percentage = (correctCount / questions.length) * 100;
+            const ctx = document.getElementById('resultChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.map(data => data.label),
+                    datasets: [
+                        {
+                            label: 'Correct',
+                            data: chartData.map(data => data.correct),
+                            backgroundColor: 'green'
+                        },
+                        {
+                            label: 'Incorrect',
+                            data: chartData.map(data => data.incorrect),
+                            backgroundColor: 'red'
+                        },
+                        {
+                            label: 'Skipped',
+                            data: chartData.map(data => data.skipped),
+                            backgroundColor: 'gray'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                afterLabel: function(context) {
+                                    const index = context.dataIndex;
+                                    return `Correct Answer: ${chartData[index].correctAnswer}`;
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: `Total Score: ${correctCount} out of ${questions.length} = ${percentage}%`
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            title: {
+                                display: true,
+                                text: 'Questions'
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            title: {
+                                display: true,
+                                text: 'Outcome'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function displayResult() {
+            document.getElementById('resultChart').style.display = 'block';
+            displayResultChart();
         }
 
         startQuiz();
