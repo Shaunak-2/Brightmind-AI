@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from pymongo import MongoClient
+from flask_bcrypt import Bcrypt
 import re
 import time
 import os
@@ -22,9 +24,7 @@ conversation_history = []
 load_dotenv()
 
 groq_api_key = os.getenv("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")
-client = Groq(api_key="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")
-client2 = Groq(api_key="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")
-
+client_api = Groq(api_key="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")
 
 # Set your API key
 os.environ['GOOGLE_API_KEY'] = "AIzaSyBAtGOtAIGni2RBnhIBTrn71HJPU5vb7TU"
@@ -34,9 +34,76 @@ genai.configure(api_key="AIzaSyBAtGOtAIGni2RBnhIBTrn71HJPU5vb7TU")
 
 app = Flask(__name__)
 
+app.secret_key = os.urandom(24)
+bcrypt = Bcrypt(app)
+
+client = MongoClient('mongodb://localhost:27017/')
+db = client['quiz_app'] 
+users_collection = db['users'] 
+
 @app.route('/')
-def index():
-    return render_template('interface.html')
+def home():
+    return render_template('home.html')
+
+@app.route('/signup', methods=['POST'])
+def signup():
+    username = request.form['username']
+    email = request.form['email']
+    password = request.form['password']
+    college = request.form['college']
+    
+    if users_collection.find_one({'email': email}):
+        return "Email already exists!"
+    
+    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+    
+    users_collection.insert_one({
+        'username': username,
+        'email': email,
+        'password': hashed_password,
+        'college': college
+    })
+    return redirect(url_for('home'))
+
+@app.route('/signin', methods=['POST'])
+def signin():
+    email = request.form['email']
+    password = request.form['password']
+    
+    user = users_collection.find_one({'email': email})
+    if not user:
+        return jsonify({'success': False, 'message': 'Incorrect email ID!'})
+    
+    if not bcrypt.check_password_hash(user['password'], password):
+        return jsonify({'success': False, 'message': 'Incorrect password!'})
+    
+    session['user'] = user['username']
+    return jsonify({'success': True})
+
+
+@app.route('/forgot_password', methods=['POST'])
+def forgot_password():
+    username = request.form['username']
+    email = request.form['email']
+    new_password = request.form['new_password']
+    
+    user = users_collection.find_one({'username': username, 'email': email})
+    if not user:
+        return jsonify({'success': False, 'message': 'User not found. Please check the details!'})
+    
+    hashed_new_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
+    
+    users_collection.update_one(
+        {'username': username, 'email': email},
+        {'$set': {'password': hashed_new_password}}
+    )
+    return jsonify({'success': True, 'message': 'Password updated successfully!'})
+
+@app.route('/interface')
+def interface():
+    if 'user' in session:
+        return render_template('interface.html', username=session['user'])
+    return redirect(url_for('home'))
 
 @app.route('/gamification')
 def gamification():
@@ -241,7 +308,8 @@ def generate_quiz():
         elif line.startswith("(Correct Answer:"):
             # Capture the correct answer based on its label (a, b, c, or d)
             current_correct_answer = line.replace("(Correct Answer:", "").replace(")", "").strip()
-        
+            if current_correct_answer not in ['a', 'b', 'c', 'd']:
+                raise ValueError(f"Unexpected answer format: {current_correct_answer}")
         else:
             if current_question:
                 current_question += " " + line.strip()
@@ -327,8 +395,6 @@ def play_audio(file_path):
     finally:
         pygame.mixer.quit()
 
-
-
 def speech_to_text_from_microphone():
     global user_responses  # Access the global array
 
@@ -383,7 +449,7 @@ def chatbot_function(question):
     ] + conversation_history
 
     try:
-        response = client.chat.completions.create(
+        response = client_api.chat.completions.create(
             messages=messages,
             model="llama3-8b-8192",
             temperature=0.5,
@@ -434,7 +500,7 @@ def request_completion(input_text):
     while True:
         try:
             system_prompt = get_system_prompt()
-            chat_completion = client.chat.completions.create(
+            chat_completion = client_api.chat.completions.create(
                 messages=[
                     {"role": "system", "content": f"{system_prompt}"},
                     {"role": "user", "content": f"{input_text}"}
@@ -460,6 +526,8 @@ def generate():
     input_text = request.json['input_text']
     output = request_completion(input_text)
     return jsonify({'output': output})
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

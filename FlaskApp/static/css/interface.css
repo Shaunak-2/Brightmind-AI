@@ -599,27 +599,24 @@ summary::marker {
 }
 
 #blue-btn {
-    background-color: #4f5bff;
-    width: 15vw;
-    height: 3.5vw;
-    border-radius: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: inline-block;
+    background-color: #0BA34E;
+    color: #fff; /* White text */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: bold;
+    cursor: pointer;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-#blue-btn h4 {
-    position: absolute;
-    text-transform: uppercase;
-    font-weight: 600;
-    font-size: 0.85vw;
-    /* letter-spacing: 1px; */
+#blue-btn:hover {
+    background-color: #0056b3; /* Darker blue on hover */
 }
 
-#blue-btn h4 i {
-    font-size: 1.1vw;
-    font-weight: 100;
-    margin-left: 0.5vw;
+#blue-btn i {
+    margin-left: 8px;
 }
 
 #page6-bottom {

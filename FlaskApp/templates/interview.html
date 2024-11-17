@@ -5,6 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Video with Questions (70:30 Layout)</title>
     <link rel="stylesheet" href="/static/css/interview.css">
+    <script>
+        // Disable Copy-Paste
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.body.oncopy = function() {
+                alert('Copying is not allowed!');
+                return false;
+            };
+            document.body.onpaste = function() {
+                alert('Pasting is not allowed!');
+                return false;
+            };
+        });
+
+        // Detect Tab Switching
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                alert("Tab switching detected! Please stay on the interview page.");
+            }
+        });
+
+        // Check for multiple faces
+        async function checkForMultipleFaces() {
+    const video = document.getElementById('small-video');
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext('2d');
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const frameData = canvas.toDataURL('image/jpeg'); // Convert frame to base64
+
+    fetch('/face_count', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ frame: frameData })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Face count:', data.face_count);
+        if (data.face_count > 1) {
+            alert("Multiple faces detected! Cheating alert!");
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+setInterval(checkForMultipleFaces, 2000);
+
+    </script>
 </head>
 <body>
 

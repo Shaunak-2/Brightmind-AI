@@ -1,56 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Quiz Game</title>
-    <link rel="stylesheet" href="/static/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
         body {
-        font-family: 'Poppins', sans-serif;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        height: 100vh;
-        background-color: #f3f4f6; /* Light gray background */
-    }
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            background-color: #f3f4f6;
+            /* Light gray background */
+        }
 
-    .container {
-        display: flex;
-        width: 100%;
-    }
+        .container {
+            display: flex;
+            width: 100%;
+        }
 
-    /* Sidebar and quiz area styling */
-    .sidebar {
-        background-color: #0f3051;
-        color: #ECF0F1;
-        padding: 20px;
-        width: 200px;
-    }
+        /* Sidebar and quiz area styling */
+        .sidebar {
+            background-color: #0f3051;
+            color: #ECF0F1;
+            padding: 20px;
+            width: 200px;
+        }
 
-    .quiz-area {
-        padding: 20px;
-        flex-grow: 1;
-        background-color: #ECF0F1;
-        position: relative;
-    }
+        .quiz-area {
+            padding: 20px;
+            flex-grow: 1;
+            background-color: #ECF0F1;
+            position: relative;
+        }
 
-    /* Graph (canvas) styling */
-    canvas {
-        margin-top: 20px;
-        max-width: 80%;  /* Medium width for the chart, fitting within the quiz area */
-        max-height: 450px; /* Medium height */
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-        background-color: #f8f9fa; /* Subtle light background for better contrast */
-        border: 1px solid #ddd; /* Soft border for clearer edge definition */
-        border-radius: 10px;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-    }
+        /* Graph (canvas) styling */
+        canvas {
+            margin-top: 20px;
+            max-width: 80%;
+            /* Medium width for the chart, fitting within the quiz area */
+            max-height: 450px;
+            /* Medium height */
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: #f8f9fa;
+            /* Subtle light background for better contrast */
+            border: 1px solid #ddd;
+            /* Soft border for clearer edge definition */
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            /* Subtle shadow for depth */
+        }
 
         .question-container {
             margin: 20px 0;
@@ -79,11 +85,24 @@
         }
 
         .selected {
-            border-color: grey;
-            background-color: #f0f0f0;
+            border-color: #2ecc71;
+            /* Green border to indicate selection */
+            background-color: #d5f5e3;
+            /* Light green background */
+            color: #1e8449;
+            /* Dark green text */
+            font-weight: bold;
+            /* Make the text bold */
+            transition: all 0.3s ease;
+            /* Smooth transition for better user experience */
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            /* Subtle shadow for depth */
+            transform: scale(1.05);
+            /* Slightly enlarge selected option */
         }
 
-        #next-btn, #skip-btn {
+        #next-btn,
+        #skip-btn {
             background-color: #27AE60;
             color: white;
             border: none;
@@ -93,11 +112,13 @@
             margin-right: 10px;
         }
 
-        #next-btn:hover, #skip-btn:hover {
+        #next-btn:hover,
+        #skip-btn:hover {
             background-color: #219653;
         }
 
-        #gratitude-message, #result {
+        #gratitude-message,
+        #result {
             margin-top: 20px;
             font-size: 1.2em;
         }
@@ -143,12 +164,21 @@
         }
 
         @keyframes blinkingText {
-            0% { color: red; }
-            50% { color: transparent; }
-            100% { color: red; }
+            0% {
+                color: red;
+            }
+
+            50% {
+                color: transparent;
+            }
+
+            100% {
+                color: red;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="sidebar">
@@ -196,14 +226,66 @@
             startTimer();
         }
 
+        function addNavigationToQuestions() {
+            const questionNodes = document.querySelectorAll('.question-node');
+            questionNodes.forEach((node, index) => {
+                node.addEventListener('click', () => {
+                    currentQuestionIndex = index; // Set the current question index to the clicked node
+                    displayQuestion(); // Display the selected question
+                });
+            });
+        }
+
+        let reviewMode = false;
         function displayQuestion() {
             document.getElementById('question').innerText = `${currentQuestionIndex + 1}. ${questions[currentQuestionIndex]}`;
             document.querySelectorAll('.option')[0].innerText = options_a[currentQuestionIndex];
             document.querySelectorAll('.option')[1].innerText = options_b[currentQuestionIndex];
             document.querySelectorAll('.option')[2].innerText = options_c[currentQuestionIndex];
             document.querySelectorAll('.option')[3].innerText = options_d[currentQuestionIndex];
+
+            document.querySelectorAll('.option').forEach((option, index) => {
+                option.classList.remove('selected', 'correct', 'incorrect', 'disabled');
+                option.style.backgroundColor = ''; // Reset any custom background color
+
+                if (reviewMode) {
+                    // Disable option selection in review mode
+                    option.classList.add('disabled');
+                    option.style.pointerEvents = 'none';
+
+                    const correctAnswer = correct_answers[currentQuestionIndex].toLowerCase();
+                    const correctIndex = answerLetters.indexOf(correctAnswer);
+                    const userAnswer = userAnswers[currentQuestionIndex];
+
+                    // Highlight correct and incorrect answers
+                    if (userAnswer !== undefined) {
+                        if (index === correctIndex) {
+                            option.classList.add('correct');
+                            option.style.backgroundColor = '#d5f5e3'; // Green for correct answers
+                        } else if (index === userAnswer) {
+                            option.classList.add('incorrect');
+                            option.style.backgroundColor = '#f8d7da'; // Red for incorrect answers
+                        }
+                    }
+
+                    // Highlight correct answer (if not selected by the user)
+                    if (userAnswer !== correctIndex && index === correctIndex) {
+                        option.classList.add('correct');
+                        option.style.backgroundColor = '#d5f5e3'; // Green for correct answers
+                    }
+                } else {
+                    // Normal behavior: Highlight previously selected answer
+                    if (userAnswers[currentQuestionIndex] !== undefined && userAnswers[currentQuestionIndex] !== "Skipped") {
+                        if (index === userAnswers[currentQuestionIndex]) {
+                            option.classList.add('selected');
+                        }
+                    }
+                }
+            });
+
             updateQuestionList();
-            resetTimer();
+            if (!reviewMode) resetTimer(); // Do not reset timer in review mode
+            addNavigationToQuestions(); // Ensure navigation works for the sidebar
         }
 
         function updateQuestionList() {
@@ -216,7 +298,10 @@
                 node.innerHTML = `Question ${index + 1}`;
                 questionList.appendChild(node);
             });
+
+            addNavigationToQuestions(); // Ensure new nodes have click functionality
         }
+
 
         function answerQuestion(answerIndex) {
             userAnswers[currentQuestionIndex] = answerIndex;
@@ -235,21 +320,21 @@
                 displayQuestion();
             } else {
                 clearInterval(timerInterval);
-                displayGratitudeMessage(); 
+                displayGratitudeMessage();
                 document.getElementById('show-results').style.display = 'block'; // Show results button only after quiz ends
             }
         }
 
         function skipQuestion() {
-            userAnswers[currentQuestionIndex] = "Skipped"; // Mark the question as skipped
-            nextQuestion(); // Move to the next question
+            userAnswers[currentQuestionIndex] = "Skipped";
+            nextQuestion();
         }
 
         function startTimer() {
             timerInterval = setInterval(() => {
                 timeLeft--;
 
-                const timerElement = document.getElementById('timer');  
+                const timerElement = document.getElementById('timer');
                 timerElement.textContent = `Time left: ${timeLeft} seconds`;
 
                 if (timeLeft === 5) {
@@ -265,8 +350,12 @@
 
         function resetTimer() {
             timeLeft = timePerQuestion;
-            clearInterval(timerInterval); // Clear the existing interval
-            startTimer(); // Start a new interval for the next question
+            clearInterval(timerInterval);
+            startTimer();
+
+            const timerElement = document.getElementById('timer');
+            timerElement.classList.remove('blinking');
+            timerElement.style.color = 'black';
         }
 
         function displayGratitudeMessage() {
@@ -280,8 +369,13 @@
             let correctCount = 0;
 
             const chartData = questions.map((question, index) => {
-                const userAnswer = userAnswers[index] !== undefined ? answerLetters[userAnswers[index]] : "Skipped";
-                
+                let userAnswer;
+                if (userAnswers[index] === "Skipped") {
+                    userAnswer = "Skipped";
+                } else {
+                    userAnswer = userAnswers[index] !== undefined ? answerLetters[userAnswers[index]] : "Skipped";
+                }
+
                 const correctAnswer = correct_answers[index].toLowerCase();
 
                 let correct = 0, incorrect = 0, skipped = 0;
@@ -299,7 +393,7 @@
                     correct,
                     incorrect,
                     skipped,
-                    correctAnswer // For tooltip
+                    correctAnswer
                 };
             });
 
@@ -332,7 +426,7 @@
                     plugins: {
                         tooltip: {
                             callbacks: {
-                                afterLabel: function(context) {
+                                afterLabel: function (context) {
                                     const index = context.dataIndex;
                                     return `Correct Answer: ${chartData[index].correctAnswer}`;
                                 }
@@ -340,7 +434,7 @@
                         },
                         title: {
                             display: true,
-                            text: `Total Score: ${correctCount} out of ${questions.length} = ${percentage}%`
+                            text: `Total Score: ${correctCount} out of ${questions.length} = ${percentage.toFixed(2)}%`
                         }
                     },
                     scales: {
@@ -366,9 +460,12 @@
         function displayResult() {
             document.getElementById('resultChart').style.display = 'block';
             displayResultChart();
+            reviewMode = true;
+            document.getElementById('timer').style.display = 'none';
         }
 
         startQuiz();
     </script>
 </body>
+
 </html>
