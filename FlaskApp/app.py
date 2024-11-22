@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, Response, render_template, request, redirect, url_for, session, jsonify
 from pymongo import MongoClient
 from flask_bcrypt import Bcrypt
 import re
@@ -27,10 +27,10 @@ groq_api_key = os.getenv("gsk_aOQ6EzgwUHApbG5pFt76WGdyb3FYnIzr8zfnNgnNizQxTB2Yp6
 client_api = Groq(api_key="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")
 
 # Set your API key
-os.environ['GOOGLE_API_KEY'] = "AIzaSyBAtGOtAIGni2RBnhIBTrn71HJPU5vb7TU"
+os.environ['GOOGLE_API_KEY'] = "AIzaSyA3SivVQjb3XBgaQt_iZBcWDiXX6EUFOcw"
 
 # Configure generative AI
-genai.configure(api_key="AIzaSyBAtGOtAIGni2RBnhIBTrn71HJPU5vb7TU")
+genai.configure(api_key="AIzaSyA3SivVQjb3XBgaQt_iZBcWDiXX6EUFOcw")
 
 app = Flask(__name__)
 
@@ -40,6 +40,49 @@ bcrypt = Bcrypt(app)
 client = MongoClient('mongodb://localhost:27017/')
 db = client['quiz_app'] 
 users_collection = db['users'] 
+
+# Load the pre-trained Haar Cascade classifier for face detection
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
+# Global variable to store the face count
+face_count = 0
+
+# Function to detect faces and stream video
+def detect_faces():
+    cap = cv2.VideoCapture(0)
+    
+    global face_count
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break  # Exit loop if the frame is not read properly
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+        face_count = len(faces)
+
+        for (x, y, w, h) in faces:
+            cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
+
+        ret, jpeg = cv2.imencode('.jpg', frame)
+        frame = jpeg.tobytes()
+
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+    cap.release()  # Ensure the camera is released when exiting the loop
+
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(detect_faces(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/face_count')
+def get_face_count():
+    global face_count
+    alert = "More than one person detected!" if face_count > 1 else ""
+    return jsonify(face_count=face_count, alert=alert)
 
 @app.route('/')
 def home():

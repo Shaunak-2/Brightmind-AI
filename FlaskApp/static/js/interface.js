@@ -131,6 +131,8 @@ function page2Animation() {
     })
 }
 
+
+
 function page3VideoAnimation() {
     var page3Center = document.querySelector(".page3-center")
     var video = document.querySelector("#page3 video")
@@ -192,6 +194,7 @@ function takeinteview(){
       window.location.href = '/choice';
     });
 }
+
 function openResearchPaper() {
     const researchPaperUrl = "https://drive.google.com/file/d/1laSc1E6IsV1IrLBN3CVb-eCuiWz4JAPE/view?usp=sharing";
     window.open(researchPaperUrl, "_blank");
@@ -200,6 +203,11 @@ function openProjectFile() {
     const projectFileUrl = "https://docs.google.com/document/d/1_kzLw6EOfoIdAlHu7O9RFNQSPOAEwKpP/edit?usp=sharing&ouid=100388520966334586246&rtpof=true&sd=true";
     window.open(projectFileUrl, "_blank");
 }
+
+openResearchPaper()
+
+openProjectFile()
+
 takeinteview()
 
 locomotiveAnimation()
