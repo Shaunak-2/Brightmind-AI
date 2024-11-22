@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Test - Editor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1 id="questionTitle">Question Title</h1>
+
+    <!-- Language Dropdown -->
+    <label for="languageSelect">Select Language:</label>
+    <select id="languageSelect">
+      <option value="javascript">JavaScript</option>
+      <option value="java">Java</option>
+      <option value="python">Python</option>
+    </select>
+
+    <textarea id="codeEditor" placeholder="Write your code here..." rows="10"></textarea>
+    <button id="runCode">Run Code</button>
+
+    <h3>Test Cases:</h3>
+    <ul id="testCaseList"></ul>  <!-- To display test cases -->
+
+    <h3>Results:</h3>
+    <div id="results"></div>
+
+    <div id="loadingIndicator" style="display:none;">Running...</div>
+  </div>
+
+  <script>
+    // Extract question ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const questionId = urlParams.get('id');
+
+    // Map questions to their titles and test cases
+    const questions = {
+      1: { title: "Reverse an Array", testCases: ["[1, 2, 3, 4, 5]", "[10, 20, 30, 40]", "[7, 8, 9]"] },
+      2: { title: "Find the Largest Number", testCases: ["[1, 2, 3, 4, 5]", "[10, 20, 30, 40]", "[7, 8, 9]"] },
+      3: { title: "Check Palindrome", testCases: ['"madam"', '"hello"', '"racecar"'] },
+      4: { title: "Sort an Array", testCases: ["[4, 2, 3, 1]", "[10, 5, 6, 20]", "[9, 7, 8, 6]"] },
+      5: { title: "Sum of Digits", testCases: ["12345", "98765", "101010"] },
+    };
+
+    // Set question title and test cases dynamically
+    const question = questions[questionId];
+    if (question) {
+      document.getElementById('questionTitle').textContent = question.title;
+
+      const testCaseList = document.getElementById('testCaseList');
+      question.testCases.forEach((testCase, index) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `Test Case ${index + 1}: ${testCase}`;
+        testCaseList.appendChild(listItem);
+      });
+    } else {
+      document.getElementById('questionTitle').textContent = "Invalid Question ID";
+    }
+
+    // Backend API URL
+    const API_URL = "http://localhost:5000/api/execute";
+
+    // Handle Run Code button click event
+    document.getElementById('runCode').addEventListener('click', async () => {
+      const code = document.getElementById('codeEditor').value;  // Get the code written by the user
+      const selectedLanguage = document.getElementById('languageSelect').value;  // Get the selected language
+
+      // Prepare the test cases based on the selected question
+      const testCases = {
+        1: ["[1, 2, 3, 4, 5]", "[10, 20, 30, 40]", "[7, 8, 9]"],
+        2: ["[1, 2, 3, 4, 5]", "[10, 20, 30, 40]", "[7, 8, 9]"],
+        3: ['"madam"', '"hello"', '"racecar"'],
+        4: ["[4, 2, 3, 1]", "[10, 5, 6, 20]", "[9, 7, 8, 6]"],
+        5: ["12345", "98765", "101010"],
+      };
+
+      // Prepare the payload for the POST request
+      const payload = {
+        code: code,                    // The code entered by the user
+        language: selectedLanguage,     // Programming language selected by the user
+        inputs: testCases[questionId]   // Test cases for the selected question
+      };
+
+      // Show the loading indicator
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = "Running...";
+      const loadingIndicator = document.getElementById('loadingIndicator');
+      loadingIndicator.style.display = 'block';
+
+      try {
+        // Make a POST request to the backend to execute the code
+        const response = await fetch(API_URL, {  // Replace with actual backend API URL
+          method: "POST",  // HTTP method (POST)
+          headers: {
+            "Content-Type": "application/json"  // Send data as JSON
+          },
+          body: JSON.stringify(payload),  // Send the payload as the request body
+        });
+
+        // Parse the response from the backend
+        const data = await response.json();
+
+        // Hide the loading indicator
+        loadingIndicator.style.display = 'none';
+
+        // Check if the backend returned valid results
+        if (data && data.data) {
+          // Display the test case results
+          resultsDiv.innerHTML = `
+            <ul>
+              ${data.data
+                .map(
+                  (output, index) =>
+                    `<li>
+                        <strong>Test Case ${index + 1}:</strong><br>
+                        <em>Input:</em> ${testCases[questionId][index]} <br>
+                        <em>Output:</em> ${output ? "✅ Passed" : "❌ Failed"}
+                      </li>`
+                )
+                .join("")}
+            </ul>
+          `;
+        } else {
+          resultsDiv.textContent = "No results found.";
+        }
+      } catch (err) {
+        // Handle any errors (e.g., network issues or server errors)
+        loadingIndicator.style.display = 'none';
+        resultsDiv.textContent = `Error: ${err.message}. Please try again.`;
+      }
+    });
+  </script>
+</body>
+</html>

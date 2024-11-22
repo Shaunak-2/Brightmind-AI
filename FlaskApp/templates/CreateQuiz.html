@@ -456,6 +456,11 @@
                 }
             });
         }
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                alert("Tab switching detected! Please stay on the quiz page.");
+            }
+        });
 
         function displayResult() {
             document.getElementById('resultChart').style.display = 'block';
