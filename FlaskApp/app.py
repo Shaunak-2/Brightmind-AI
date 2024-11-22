@@ -164,6 +164,30 @@ def knowledgeLadder():
 def quiz_options():
     return render_template('quizOptions.html')
 
+@app.route('/code_editor')
+def code_editor():
+    return render_template('code_editor.html')  # Render the code editor page
+
+@app.route('/run_code', methods=['POST'])
+def run_code():
+    # Extract code and language from the request
+    data = request.get_json()
+    code = data.get('code')
+    language = data.get('language')
+
+    # Replace 'http://localhost:3000/run-code' with your Node.js backend endpoint
+    node_backend_url = ' http://localhost:5000/'
+
+    try:
+        # Send the code and language to the Node.js backend
+        response = requests.post(node_backend_url, json={'code': code, 'language': language})
+
+        # Return the response from the Node.js backend
+        return jsonify(response.json())
+    except requests.exceptions.RequestException as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+
 @app.route('/Quize')
 def Quize():
     return render_template('Quize.html')

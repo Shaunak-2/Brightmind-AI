@@ -1,0 +1,3 @@
+[submodule "CodeNitrix-Backend"]
+	path = CodeNitrix-Backend
+	url = https://github.com/n0IQ/CodeNitrix-Backend.git
